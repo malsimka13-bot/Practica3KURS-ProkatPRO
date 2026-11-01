@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+rental.db
+*.db
+.env
+.idea/
+.vscode/

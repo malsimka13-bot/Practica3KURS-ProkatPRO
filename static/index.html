@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ПрокатПро — прокат спортивного, туристического и строительного оборудования</title>
+<meta name="description" content="Бронируйте велосипеды, палатки и электроинструмент на нужные даты. Свободное оборудование видно сразу.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@500;700&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1A0B24;--card:#2B1238;--line:#4B2A5E;--mag:#B03AA8;--vio:#7A3FC0;--teal:#3FB8C4;--bone:#EDE8DD;--gold:#D9A82E;--mute:#A592B0;
+--h:"Geologica","Segoe UI",Arial,sans-serif;--b:"Golos Text","Segoe UI",Arial,sans-serif;color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+body{background:radial-gradient(900px 500px at 85% -10%,#3a1650,transparent),var(--bg);color:var(--bone);font:400 1rem/1.55 var(--b);min-height:100vh}
+a{color:var(--teal)}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px clamp(16px,4vw,48px);border-bottom:1px solid var(--line)}
+.logo{font:700 1.3rem var(--h);color:var(--bone);text-decoration:none;letter-spacing:.01em}
+nav{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+nav a,nav button{color:var(--bone);text-decoration:none;padding:7px 12px;border-radius:10px;font:500 .92rem var(--b);background:none;border:0;cursor:pointer}
+nav a:hover,nav button:hover,nav a.on{background:var(--card);color:var(--teal)}
+main{padding:clamp(16px,4vw,48px);max-width:1200px;margin:auto}
+h1{font:700 clamp(1.9rem,5vw,3.2rem)/1.1 var(--h);max-width:18ch}
+h2{font:700 1.4rem var(--h);margin-bottom:12px}
+.lead{color:var(--mute);margin:12px 0 22px;max-width:55ch}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:28px;box-shadow:0 0 0 1px #3FB8C422,0 12px 40px #0006}
+label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--mute)}
+input,select,textarea{font:inherit;color:var(--bone);background:#1A0B24;border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%}
+input[type=number]{max-width:110px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.eq{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.pic{position:relative;overflow:hidden;height:150px;display:grid;place-items:center;font-size:3.2rem;background:linear-gradient(135deg,#B03AA866,#3FB8C455)}
+.eq .in{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.eq h3{font:700 1.05rem var(--h)}
+.eq p{color:var(--mute);font-size:.9rem;flex:1}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.price{font:700 1.1rem var(--h)}
+.free{font-size:.85rem;color:var(--teal)}.free.no{color:var(--gold)}
+.btn{font:600 .95rem var(--b);color:#fff;background:linear-gradient(120deg,var(--mag),var(--vio));border:0;border-radius:12px;padding:10px 16px;cursor:pointer}
+.btn:hover{filter:brightness(1.12)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--bone)}
+.btn.sm{padding:6px 10px;font-size:.85rem}
+.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:16px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{color:var(--mute);font-weight:500}
+tr:last-child td{border-bottom:0}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.8rem;font-weight:600;border:1px solid}
+.s-booked{color:var(--teal);border-color:var(--teal)}.s-confirmed{background:var(--teal);color:#12202a;border-color:var(--teal)}
+.s-issued{background:var(--mag);color:#fff;border-color:var(--mag)}.s-returned{color:var(--bone);border-color:var(--mute)}
+.s-overdue{background:var(--gold);color:#2a1d00;border-color:var(--gold)}.s-cancelled{color:var(--mute);border-color:var(--line)}
+.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}.tabs button{border:1px solid var(--line);background:none;color:var(--bone);padding:8px 14px;border-radius:99px;cursor:pointer;font:500 .92rem var(--b)}
+.tabs button.on{background:var(--card);border-color:var(--teal);color:var(--teal)}
+.form{max-width:380px;display:grid;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+td.actions{display:table-cell;white-space:nowrap}td.actions .btn{margin-right:6px}
+.bar{display:grid;grid-template-columns:130px 1fr auto;gap:10px;align-items:center;margin:8px 0;font-size:.9rem}
+.bar i{display:block;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--mag),var(--teal))}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px}
+.kpi div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}.kpi b{display:block;font:700 1.6rem var(--h)}
+.kpi span{color:var(--mute);font-size:.85rem}
+dialog{margin:auto;background:var(--card);color:var(--bone);border:1px solid var(--teal);border-radius:18px;padding:22px;width:min(420px,92vw)}
+dialog::backdrop{background:#0009}
+dialog form{display:grid;gap:12px}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--bone);color:#1A0B24;padding:10px 18px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90vw}
+#toast.show{opacity:1}#toast.err{background:var(--gold)}
+.empty{color:var(--mute);padding:24px;text-align:center}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:22px}
+.chart{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;margin-top:8px}.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+.cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+</style>
+</head>
+<body>
+<header class="top"><a class="logo" href="#/"><img src="/static/prokatpro-logo-transparent.svg" alt="ПрокатПро" height="40"></a><nav id="nav" aria-label="Главное меню"></nav></header>
+<main id="app"></main>
+<dialog id="dlg"></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+const $=(s,r=document)=>r.querySelector(s), app=$('#app'), dlg=$('#dlg');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rub=n=>Math.round(n).toLocaleString('ru-RU')+' ₽';
+const dd=s=>new Date(s+'T00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const TODAY=iso(new Date());
+const ST={booked:'ждёт подтверждения',confirmed:'подтверждено',issued:'выдано',returned:'возвращено',overdue:'просрочено',cancelled:'отменено'};
+const chip=s=>`<span class="chip s-${s}">${ST[s]||s}</span>`;
+let me=null; try{me=JSON.parse(localStorage.getItem('me'))}catch(e){}
+
+function toast(m,err){const t=$('#toast');t.textContent=m;t.className='show'+(err?' err':'');clearTimeout(t.t);t.t=setTimeout(()=>t.className='',3200)}
+function logout(){localStorage.removeItem('tok');localStorage.removeItem('me');me=null;location.hash='#/login';route()}
+async function api(p,m='GET',b){
+  const h={'Content-Type':'application/json'}, tk=localStorage.getItem('tok'); if(tk)h.Authorization='Bearer '+tk;
+  const r=await fetch('/api'+p,{method:m,headers:h,body:b?JSON.stringify(b):undefined});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){ if(r.status===401&&tk)logout();
+    const f=Array.isArray(j.detail)&&j.detail[0]?.loc?.at(-1);
+    throw new Error(typeof j.detail==='string'?j.detail:r.status>=500?`Ошибка сервера (${r.status}). Подробности в терминале`:`Проверьте поле «${f||'формы'}»`)}
+  return j;
+}
+const safe=fn=>async(...a)=>{try{await fn(...a)}catch(e){toast(e.message,1)}};
+
+function nav(){
+  const h=location.hash||'#/', l=(x,t)=>`<a href="${x}" class="${h===x?'on':''}">${t}</a>`;
+  let s=l('#/','Каталог');
+  if(me){s+=l('#/cabinet','Мои аренды');
+    if(me.role!=='client')s+=l('#/desk','Выдача и приём');
+    if(me.role==='admin')s+=l('#/admin','Администратор');
+    s+=`<button id="out">Выйти (${esc(me.name)})</button>`}
+  else s+=l('#/login','Войти')+l('#/register','Регистрация');
+  $('#nav').innerHTML=s; if($('#out'))$('#out').onclick=logout;
+}
+
+/* ---------- каталог ---------- */
+async function catalog(){
+  const cats=await api('/categories');
+  app.innerHTML=`<h1>Снаряжение на любой маршрут и любую стройку</h1>
+  <p class="lead">Выберите даты — в карточках сразу покажем, сколько единиц свободно.</p>
+  <div class="filters">
+   <label>Поиск<input id="q" placeholder="палатка, перфоратор…"></label>
+   <label>Категория<select id="cat"><option value="0">Все</option>${cats.map(c=>`<option value="${c.id}">${c.icon} ${esc(c.name)}</option>`).join('')}</select></label>
+   <label>Взять с<input type="date" id="s" min="${TODAY}"></label>
+   <label>Вернуть до<input type="date" id="e" min="${TODAY}"></label></div>
+  <section class="grid" id="grid" aria-live="polite"></section>`;
+  const load=safe(async()=>{
+    const s=$('#s').value,e=$('#e').value,dated=s&&e&&e>=s;
+    const p=new URLSearchParams({q:$('#q').value.trim(),category_id:$('#cat').value});
+    if(dated){p.set('start',s);p.set('end',e)}
+    const list=await api('/equipment?'+p);
+    $('#grid').innerHTML=list.length?list.map(x=>`<article class="eq"><div class="pic" aria-hidden="true">${x.icon}${x.photo?`<img src="${esc(x.photo)}" alt="" loading="lazy" onerror="this.remove()">`:''}</div><div class="in">
+      <h3>${esc(x.name)}</h3><p>${esc(x.description)}</p>
+      <div class="row"><span class="price">${rub(x.price_per_day)}<small>/сут</small></span>
+      <span class="free ${x.free?'':'no'}">${x.free?(dated?'свободно ':'в наличии ')+x.free+' шт.':(dated?'на эти даты занято':'нет в наличии')}</span></div>
+      <button class="btn" data-id="${x.id}" ${x.free?'':'disabled'}>Забронировать</button></div></article>`).join('')
+      :'<p class="empty">Ничего не найдено. Измените поиск или категорию.</p>';
+    $('#grid').querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>bookDlg(list.find(x=>x.id==b.dataset.id),$('#s').value,$('#e').value,load));
+  });
+  let t;['q','cat','s','e'].forEach(i=>$('#'+i).oninput=()=>{clearTimeout(t);t=setTimeout(load,250)});
+  load();
+}
+function bookDlg(x,s,e,reload){
+  if(!me){toast('Войдите, чтобы забронировать');location.hash='#/login';return}
+  dlg.innerHTML=`<form id="bf"><h2>${x.icon} ${esc(x.name)}</h2>
+  <label>Взять с<input type="date" id="bs" min="${TODAY}" value="${s||TODAY}" required></label>
+  <label>Вернуть до<input type="date" id="be" min="${TODAY}" value="${e||s||TODAY}" required></label>
+  <label>Количество<input type="number" id="bq" min="1" max="${Math.max(x.free,1)}" value="1" required></label>
+  <p id="sum" class="lead" style="margin:0"></p>
+  <div class="row"><button type="button" class="btn ghost" id="cl">Отмена</button><button class="btn">Забронировать</button></div></form>`;
+  const sum=()=>{const a=new Date($('#bs').value),b=new Date($('#be').value),q=+$('#bq').value;
+    const d=Math.round((b-a)/864e5)+1; $('#sum').textContent=d>0&&q>0?`${d} сут. × ${q} шт. = ${rub(d*q*x.price_per_day)}`:'Дата возврата не может быть раньше даты начала'};
+  ['bs','be','bq'].forEach(i=>$('#'+i).oninput=sum); sum();
+  $('#cl').onclick=()=>dlg.close();
+  $('#bf').onsubmit=safe(async ev=>{ev.preventDefault();
+    await api('/bookings','POST',{equipment_id:x.id,start:$('#bs').value,end:$('#be').value,qty:+$('#bq').value});
+    dlg.close();toast('Забронировано! Менеджер подтвердит бронь.');reload()});
+  dlg.showModal();
+}
+
+/* ---------- вход ---------- */
+function authForm(reg){
+  app.innerHTML=`<h1>${reg?'Создайте аккаунт':'Войдите в аккаунт'}</h1><p class="lead">${reg?'Нужен для бронирования и истории аренд.':'Демо: client@rent.local / client123'}</p>
+  <form class="form" id="af">${reg?'<label>Имя<input id="n" required minlength="2" autocomplete="name"></label>':''}
+  <label>Email<input id="em" type="email" required autocomplete="email"></label>
+  <label>Пароль<input id="pw" type="password" required minlength="6" autocomplete="${reg?'new-password':'current-password'}"></label>
+  <button class="btn">${reg?'Зарегистрироваться':'Войти'}</button></form>`;
+  $('#af').onsubmit=safe(async ev=>{ev.preventDefault();
+    const r=await api(reg?'/register':'/login','POST',{email:$('#em').value,password:$('#pw').value,...(reg?{name:$('#n').value}:{})});
+    localStorage.setItem('tok',r.token);localStorage.setItem('me',JSON.stringify(r.user));me=r.user;location.hash='#/';route()});
+}
+
+/* ---------- личный кабинет ---------- */
+async function cabinet(){
+  const list=await api('/bookings/my');
+  app.innerHTML=`<h1>Мои аренды</h1><p class="lead">История и текущие бронирования.</p>`+(list.length?`<div class="wrap"><table class="tbl"><thead><tr><th>Оборудование</th><th>Даты</th><th>Сумма</th><th>Статус</th><th></th></tr></thead><tbody>${list.map(b=>`<tr>
+   <td>${b.icon} ${esc(b.equipment)} × ${b.qty}</td><td>${dd(b.start)} — ${dd(b.end)}</td><td>${rub(b.total)}${b.fine?`<br><small style="color:var(--gold)">штраф ${rub(b.fine)}</small>`:''}</td>
+   <td>${chip(b.status)}${b.issue_note?`<br><small>При выдаче: ${esc(b.issue_note)}</small>`:''}${b.note?`<br><small>При возврате: ${esc(b.note)}</small>`:''}</td>
+   <td>${['booked','confirmed'].includes(b.status)?`<button class="btn ghost sm" data-c="${b.id}">Отменить</button>`:''}</td></tr>`).join('')}</tbody></table></div>`
+   :`<p class="empty">Аренд пока нет. <a href="#/">Выберите оборудование в каталоге</a>.</p>`);
+  app.querySelectorAll('[data-c]').forEach(b=>b.onclick=safe(async()=>{await api(`/bookings/${b.dataset.c}/cancel`,'POST');toast('Бронь отменена');cabinet()}));
+}
+
+/* ---------- менеджер ---------- */
+async function desk(){
+  const all=await api('/bookings'); let f=sessionStorage.getItem('f')||'';
+  const draw=()=>{const list=f?all.filter(b=>b.status===f):all;
+  app.innerHTML=`<h1>Выдача и приём</h1><div class="tabs" style="margin-top:18px">${['',...Object.keys(ST)].map(k=>`<button class="${f===k?'on':''}" data-f="${k}">${k?ST[k]:'Все'}</button>`).join('')}</div>`+
+  (list.length?`<div class="wrap"><table class="tbl"><thead><tr><th>Клиент</th><th>Оборудование</th><th>Даты</th><th>Статус</th><th>Действие</th></tr></thead><tbody>${list.map(b=>`<tr>
+   <td>${esc(b.user)}</td><td>${b.icon} ${esc(b.equipment)} × ${b.qty}</td><td>${dd(b.start)} — ${dd(b.end)}</td><td>${chip(b.status)}</td><td class="actions">
+   ${b.status==='booked'?`<button class="btn sm" data-a="confirm" data-id="${b.id}">Подтвердить</button>`:''}
+   ${b.status==='confirmed'?`<button class="btn sm" data-i="${b.id}">Выдать</button>`:''}
+   ${['issued','overdue'].includes(b.status)?`<button class="btn sm" data-r="${b.id}">Принять</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">Броней с таким статусом нет.</p>');
+  app.querySelectorAll('[data-f]').forEach(x=>x.onclick=()=>{f=x.dataset.f;sessionStorage.setItem('f',f);draw()});
+  app.querySelectorAll('[data-a]').forEach(x=>x.onclick=safe(async()=>{await api(`/bookings/${x.dataset.id}/${x.dataset.a}`,'POST');toast('Подтверждено');desk()}));
+  app.querySelectorAll('[data-i]').forEach(x=>x.onclick=()=>issueDlg(x.dataset.i));
+  app.querySelectorAll('[data-r]').forEach(x=>x.onclick=()=>retDlg(x.dataset.r));};
+  draw();
+}
+function issueDlg(id){
+  dlg.innerHTML=`<form id="rf"><h2>Выдача оборудования</h2>
+  <label>Состояние при выдаче<textarea id="nt" rows="2" maxlength="300" placeholder="Например: исправно, комплект полный"></textarea></label>
+  <div class="row"><button type="button" class="btn ghost" id="cl">Отмена</button><button class="btn">Выдать</button></div></form>`;
+  $('#cl').onclick=()=>dlg.close();
+  $('#rf').onsubmit=safe(async ev=>{ev.preventDefault();await api(`/bookings/${id}/issue`,'POST',{note:$('#nt').value});dlg.close();toast('Выдано');desk()});
+  dlg.showModal();
+}
+function retDlg(id){
+  dlg.innerHTML=`<form id="rf"><h2>Приём оборудования</h2><p class="lead" style="margin:0">Штраф за просрочку посчитается сам: 150% суточной цены за каждые сутки.</p>
+  <label>Штраф за повреждение, ₽<input type="number" id="df" min="0" value="0"></label>
+  <label>Состояние оборудования<textarea id="nt" rows="2" maxlength="300" placeholder="Например: царапина на раме"></textarea></label>
+  <div class="row"><button type="button" class="btn ghost" id="cl">Отмена</button><button class="btn">Принять</button></div></form>`;
+  $('#cl').onclick=()=>dlg.close();
+  $('#rf').onsubmit=safe(async ev=>{ev.preventDefault();
+    const r=await api(`/bookings/${id}/return`,'POST',{damage_fine:+$('#df').value||0,note:$('#nt').value});
+    dlg.close();toast(r.fine?`Принято. Штраф: ${rub(r.fine)}`:'Принято без штрафов');desk()});
+  dlg.showModal();
+}
+
+/* ---------- администратор ---------- */
+let tab='stock';
+async function admin(){
+  app.innerHTML=`<h1>Администратор</h1><div class="tabs" style="margin-top:18px">${[['stock','Склад и тарифы'],['users','Сотрудники'],['stats','Статистика']].map(([k,t])=>`<button class="${tab===k?'on':''}" data-t="${k}">${t}</button>`).join('')}</div><div id="pane"></div>`;
+  app.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;admin()});
+  await({stock,users,stats}[tab])();
+}
+async function stock(){
+  const [list,cats,wo]=await Promise.all([api('/equipment'),api('/categories'),api('/writeoffs')]);
+  $('#pane').innerHTML=`<div class="row" style="margin-bottom:12px"><h2 style="margin:0">Оборудование</h2><button class="btn" id="add">Новая позиция</button></div>
+  <div class="wrap"><table class="tbl"><thead><tr><th>Позиция</th><th>Цена/сут</th><th>Всего</th><th>Ремонт</th><th>Списано</th><th>Доступно</th><th></th></tr></thead><tbody>${list.map(x=>`<tr><td>${x.icon} ${esc(x.name)}</td><td>${rub(x.price_per_day)}</td><td>${x.stock_total}</td><td>${x.in_repair}</td><td>${x.written_off}</td><td>${x.usable}</td>
+   <td class="actions"><button class="btn sm" data-e="${x.id}">Изменить</button><button class="btn ghost sm" data-w="${x.id}">Списать</button></td></tr>`).join('')}</tbody></table></div>
+  <h2 style="margin:28px 0 12px">Категории</h2><div class="cats">${cats.map(c=>`<button class="btn ghost sm" data-c="${c.id}">${c.icon} ${esc(c.name)}</button>`).join('')}<button class="btn sm" id="addc">Добавить категорию</button></div>
+  <h2 style="margin:28px 0 12px">Журнал списаний</h2>${wo.length?`<div class="wrap"><table class="tbl"><thead><tr><th>Дата</th><th>Позиция</th><th>Шт.</th><th>Причина</th></tr></thead><tbody>${wo.map(w=>`<tr><td>${dd(w.day)}</td><td>${esc(w.equipment)}</td><td>${w.qty}</td><td>${esc(w.reason)}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">Списаний пока не было.</p>'}`;
+  $('#add').onclick=()=>eqDlg(null,cats);
+  $('#addc').onclick=()=>catDlg(null);
+  $('#pane').querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>eqDlg(list.find(x=>x.id==b.dataset.e),cats));
+  $('#pane').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>woDlg(list.find(x=>x.id==b.dataset.w)));
+  $('#pane').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>catDlg(cats.find(c=>c.id==b.dataset.c)));
+}
+function eqDlg(x,cats){
+  const v=x||{name:'',category_id:cats[0].id,price_per_day:'',stock_total:'',in_repair:0,written_off:0,photo:'',description:''};
+  dlg.innerHTML=`<form id="ef"><h2>${x?'Изменить позицию':'Новая позиция'}</h2>
+  <label>Название<input id="en" required minlength="2" value="${esc(v.name)}"></label>
+  <label>Категория<select id="ec">${cats.map(c=>`<option value="${c.id}" ${c.id==v.category_id?'selected':''}>${c.icon} ${esc(c.name)}</option>`).join('')}</select></label>
+  <label>Цена за сутки, ₽<input id="ep" type="number" min="1" step="any" required value="${v.price_per_day}"></label>
+  <label>Всего на складе<input id="es" type="number" min="0" required value="${v.stock_total}"></label>
+  <label>В ремонте<input id="er" type="number" min="0" required value="${v.in_repair}"></label>
+  <label>Файл фото из папки static/img<input id="ef2" placeholder="velosiped.jpg" value="${esc(v.photo.split('/').pop())}"></label>
+  <label>Описание<textarea id="ed" rows="2" maxlength="300">${esc(v.description)}</textarea></label>
+  <div class="row"><button type="button" class="btn ghost" id="cl">Отмена</button><button class="btn">Сохранить</button></div></form>`;
+  $('#cl').onclick=()=>dlg.close();
+  $('#ef').onsubmit=safe(async ev=>{ev.preventDefault();const f=$('#ef2').value.trim().split('/').pop();
+    await api(x?'/equipment/'+x.id:'/equipment',x?'PUT':'POST',{name:$('#en').value,category_id:+$('#ec').value,price_per_day:+$('#ep').value,
+      stock_total:+$('#es').value,in_repair:+$('#er').value,written_off:v.written_off,photo:f?'/static/img/'+f:'',description:$('#ed').value});
+    dlg.close();toast('Сохранено');admin()});
+  dlg.showModal();
+}
+function woDlg(x){
+  dlg.innerHTML=`<form id="wf"><h2>Списать: ${esc(x.name)}</h2><p class="lead" style="margin:0">Доступно к списанию: ${x.usable} шт.</p>
+  <label>Сколько списать<input id="wq" type="number" min="1" max="${x.usable}" value="1" required></label>
+  <label>Причина<input id="wr" required minlength="3" maxlength="200" placeholder="Сломан без возможности ремонта"></label>
+  <div class="row"><button type="button" class="btn ghost" id="cl">Отмена</button><button class="btn">Списать</button></div></form>`;
+  $('#cl').onclick=()=>dlg.close();
+  $('#wf').onsubmit=safe(async ev=>{ev.preventDefault();await api(`/equipment/${x.id}/writeoff`,'POST',{qty:+$('#wq').value,reason:$('#wr').value});dlg.close();toast('Списано');admin()});
+  dlg.showModal();
+}
+function catDlg(c){
+  dlg.innerHTML=`<form id="cf"><h2>${c?'Изменить категорию':'Новая категория'}</h2>
+  <label>Название<input id="cn" required minlength="2" maxlength="40" value="${esc(c?.name||'')}"></label>
+  <label>Значок (эмодзи)<input id="ci" maxlength="4" value="${esc(c?.icon||'📦')}"></label>
+  <div class="row"><button type="button" class="btn ghost" id="cl">Отмена</button><button class="btn">Сохранить</button></div></form>`;
+  $('#cl').onclick=()=>dlg.close();
+  $('#cf').onsubmit=safe(async ev=>{ev.preventDefault();await api(c?'/categories/'+c.id:'/categories',c?'PUT':'POST',{name:$('#cn').value,icon:$('#ci').value||'📦'});dlg.close();toast('Сохранено');admin()});
+  dlg.showModal();
+}
+async function users(){
+  const list=await api('/users'), R={client:'Клиент',manager:'Менеджер',admin:'Администратор'};
+  $('#pane').innerHTML=`<div class="wrap"><table class="tbl"><thead><tr><th>Имя</th><th>Email</th><th>Роль</th></tr></thead><tbody>${list.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>
+  <select data-u="${u.id}" ${u.id===me.id?'disabled':''} aria-label="Роль">${Object.entries(R).map(([k,t])=>`<option value="${k}" ${u.role===k?'selected':''}>${t}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table></div>`;
+  $('#pane').querySelectorAll('[data-u]').forEach(s=>s.onchange=safe(async()=>{await api(`/users/${s.dataset.u}/role`,'PUT',{role:s.value});toast('Роль изменена')}));
+}
+const COL={booked:'#3FB8C4',confirmed:'#2A8A94',issued:'#B03AA8',returned:'#EDE8DD',overdue:'#D9A82E',cancelled:'#6B5A78'};
+function barSvg(rows){
+  if(!rows.length)return '<p class="empty">Данных пока нет</p>';
+  const W=560,H=230,p=36,step=(W-p*2)/rows.length,bw=Math.min(70,step-14),m=Math.max(...rows.map(r=>r[1]),1);
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Столбчатая диаграмма" style="width:100%"><defs><linearGradient id="g" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#B03AA8"/><stop offset="1" stop-color="#3FB8C4"/></linearGradient></defs>`+
+  rows.map(([k,v],i)=>{const h=(H-p*2)*v/m,x=p+i*step+(step-bw)/2;
+    return `<rect x="${x}" y="${H-p-h}" width="${bw}" height="${h}" rx="6" fill="url(#g)"/><text x="${x+bw/2}" y="${H-p-h-6}" text-anchor="middle" fill="#EDE8DD" font-size="11">${rub(v)}</text><text x="${x+bw/2}" y="${H-12}" text-anchor="middle" fill="#A592B0" font-size="11">${esc(k)}</text>`}).join('')+'</svg>';
+}
+function pieSvg(rows){
+  const tot=rows.reduce((a,r)=>a+r[1],0); if(!tot)return '<p class="empty">Данных пока нет</p>';
+  const R=70,C=2*Math.PI*R; let off=0;
+  return `<svg viewBox="0 0 200 200" role="img" aria-label="Круговая диаграмма статусов" style="width:100%;max-width:240px;display:block;margin:auto">`+
+  rows.map(([k,v])=>{const len=C*v/tot,el=`<circle r="${R}" cx="100" cy="100" fill="none" stroke="${COL[k]}" stroke-width="34" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 100 100)"/>`;off+=len;return el}).join('')+
+  `<text x="100" y="106" text-anchor="middle" fill="#EDE8DD" font-size="22" font-weight="700">${tot}</text></svg><div class="leg">${rows.map(([k,v])=>`<span><i style="background:${COL[k]}"></i>${ST[k]} — ${v}</span>`).join('')}</div>`;
+}
+async function stats(){
+  const s=await api('/stats'), m=Math.max(...s.top.map(r=>r[1]),1);
+  $('#pane').innerHTML=`<div class="kpi"><div><b>${rub(s.revenue)}</b><span>выручка по выданным и возвращённым</span></div><div><b>${rub(s.fines)}</b><span>штрафы</span></div><div><b>${Object.values(s.by_status).reduce((a,b)=>a+b,0)}</b><span>всего броней</span></div></div>
+  <div class="charts"><div class="chart"><h2>Брони по статусам</h2>${pieSvg(Object.entries(s.by_status))}</div>
+  <div class="chart"><h2>Сумма броней по месяцам</h2>${barSvg(Object.entries(s.by_month).map(([k,v])=>[k.slice(5)+'.'+k.slice(2,4),v]))}</div></div>
+  <div class="chart"><h2>Самое востребованное</h2>${s.top.map(([k,v])=>`<div class="bar"><span>${esc(k)}</span><i style="width:${Math.max(v/m*100,2)}%"></i><b>${v} шт.</b></div>`).join('')||'<p class="empty">Данных пока нет</p>'}</div>`;
+}
+
+/* ---------- роутер ---------- */
+const routes={'#/':[catalog],'#/login':[()=>authForm(0)],'#/register':[()=>authForm(1)],'#/cabinet':[cabinet,['client','manager','admin']],'#/desk':[desk,['manager','admin']],'#/admin':[admin,['admin']]};
+async function route(){
+  const h=location.hash||'#/', [fn,roles]=routes[h]||routes['#/']; nav();
+  if(roles&&!(me&&roles.includes(me.role))){location.hash=me?'#/':'#/login';return}
+  try{await fn()}catch(e){toast(e.message,1)}
+}
+addEventListener('hashchange',route);route();
+</script>
+</body>
+</html>

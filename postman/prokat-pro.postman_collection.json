@@ -1,0 +1,1317 @@
+{
+ "info": {
+  "name": "ПрокатПро API",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+  "description": "Запускайте папки по порядку сверху вниз (Runner). Перед запуском: uvicorn app.main:app, база с демо-данными (удалите rental.db для чистого старта). Даты в теле броней замените на будущие."
+ },
+ "auth": {
+  "type": "bearer",
+  "bearer": [
+   {
+    "key": "token",
+    "value": "{{token}}",
+    "type": "string"
+   }
+  ]
+ },
+ "variable": [
+  {
+   "key": "baseUrl",
+   "value": "http://127.0.0.1:8000"
+  },
+  {
+   "key": "token",
+   "value": ""
+  },
+  {
+   "key": "bookingId",
+   "value": ""
+  }
+ ],
+ "item": [
+  {
+   "name": "1. Авторизация",
+   "item": [
+    {
+     "name": "Регистрация: успешно",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/register",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "register"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Тест Постман\",\n  \"email\": \"postman@test.ru\",\n  \"password\": \"secret1\"\n}"
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"200 OK\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Регистрация: дубликат email",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/register",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "register"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Тест Постман\",\n  \"email\": \"postman@test.ru\",\n  \"password\": \"secret1\"\n}"
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"409 конфликт\", () => pm.expect(pm.response.code).to.eql(409));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Регистрация: плохой email",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/register",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "register"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Тест\",\n  \"email\": \"не-почта\",\n  \"password\": \"secret1\"\n}"
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"422 валидация\", () => pm.expect(pm.response.code).to.eql(422));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Вход: неверный пароль",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/login",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "login"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"email\": \"client@rent.local\",\n  \"password\": \"wrong\"\n}"
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"401\", () => pm.expect(pm.response.code).to.eql(401));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Войти: клиент",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/login",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "login"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"email\": \"client@rent.local\",\n  \"password\": \"client123\"\n}"
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"200 OK\", () => pm.expect(pm.response.code).to.eql(200));",
+         "pm.collectionVariables.set(\"token\", pm.response.json().token);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Профиль",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/me",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "me"
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "2. Каталог",
+   "item": [
+    {
+     "name": "Все оборудование",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/equipment",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "equipment"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Поиск «палатка»",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/equipment?q=палатка",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "equipment?q=палатка"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Фильтр по категории",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/equipment?category_id=3",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "equipment?category_id=3"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Свободное на даты",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/equipment?start=2026-12-01&end=2026-12-05",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "equipment?start=2026-12-01&end=2026-12-05"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Категории",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/categories",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "categories"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "3. Бронирование (клиент)",
+   "item": [
+    {
+     "name": "Войти: клиент",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/login",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "login"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"email\": \"client@rent.local\",\n  \"password\": \"client123\"\n}"
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"200 OK\", () => pm.expect(pm.response.code).to.eql(200));",
+         "pm.collectionVariables.set(\"token\", pm.response.json().token);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Создать бронь",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/bookings",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "bookings"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"equipment_id\": 1,\n  \"start\": \"2026-12-01\",\n  \"end\": \"2026-12-03\",\n  \"qty\": 2\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));",
+         "pm.collectionVariables.set(\"bookingId\", pm.response.json().id);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Пересечение дат (ждём 409)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/bookings",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "bookings"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"equipment_id\": 1,\n  \"start\": \"2026-12-02\",\n  \"end\": \"2026-12-04\",\n  \"qty\": 5\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 409\", () => pm.expect(pm.response.code).to.eql(409));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Дата в прошлом (ждём 400)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/bookings",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "bookings"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"equipment_id\": 1,\n  \"start\": \"2020-01-01\",\n  \"end\": \"2020-01-02\",\n  \"qty\": 1\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 400\", () => pm.expect(pm.response.code).to.eql(400));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Количество 0 (ждём 422)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/bookings",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "bookings"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"equipment_id\": 1,\n  \"start\": \"2026-12-10\",\n  \"end\": \"2026-12-11\",\n  \"qty\": 0\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 422\", () => pm.expect(pm.response.code).to.eql(422));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Мои аренды",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/bookings/my",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "bookings",
+        "my"
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Клиенту нельзя видеть все брони (403)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/bookings",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "bookings"
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 403\", () => pm.expect(pm.response.code).to.eql(403));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "4. Менеджер",
+   "item": [
+    {
+     "name": "Войти: менеджер",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/login",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "login"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"email\": \"manager@rent.local\",\n  \"password\": \"manager123\"\n}"
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"200 OK\", () => pm.expect(pm.response.code).to.eql(200));",
+         "pm.collectionVariables.set(\"token\", pm.response.json().token);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Все брони",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/bookings",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "bookings"
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Выдать до подтверждения (409)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/issue",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "bookings",
+        "{{bookingId}}",
+        "issue"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"note\": \"\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 409\", () => pm.expect(pm.response.code).to.eql(409));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Подтвердить",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/confirm",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "bookings",
+        "{{bookingId}}",
+        "confirm"
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Выдать",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/issue",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "bookings",
+        "{{bookingId}}",
+        "issue"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"note\": \"исправно, комплект полный\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Принять со штрафом за повреждение",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/return",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "bookings",
+        "{{bookingId}}",
+        "return"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"damage_fine\": 300,\n  \"note\": \"царапина на раме\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Статистика недоступна менеджеру (403)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/stats",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "stats"
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 403\", () => pm.expect(pm.response.code).to.eql(403));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "5. Администратор",
+   "item": [
+    {
+     "name": "Войти: администратор",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/login",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "login"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"email\": \"admin@rent.local\",\n  \"password\": \"admin123\"\n}"
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"200 OK\", () => pm.expect(pm.response.code).to.eql(200));",
+         "pm.collectionVariables.set(\"token\", pm.response.json().token);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Добавить позицию",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/equipment",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "equipment"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Лыжи беговые\",\n  \"category_id\": 1,\n  \"price_per_day\": 350,\n  \"stock_total\": 4,\n  \"description\": \"Комплект с палками\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Цена 0 (ждём 422)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/equipment",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "equipment"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Лыжи\",\n  \"category_id\": 1,\n  \"price_per_day\": 0,\n  \"stock_total\": 4\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 422\", () => pm.expect(pm.response.code).to.eql(422));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Списать больше остатка (ждём 400)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/equipment/1/writeoff",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "equipment",
+        "1",
+        "writeoff"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"qty\": 999,\n  \"reason\": \"проверка границы\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 400\", () => pm.expect(pm.response.code).to.eql(400));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Списать 1 шт.",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/equipment/1/writeoff",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "equipment",
+        "1",
+        "writeoff"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"qty\": 1,\n  \"reason\": \"сломана рама\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Журнал списаний",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/writeoffs",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "writeoffs"
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Новая категория",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/categories",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "categories"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Музыка\",\n  \"icon\": \"🎸\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Пользователи",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/users",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "users"
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Статистика",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/api/stats",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "api",
+        "stats"
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"статус 200\", () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
