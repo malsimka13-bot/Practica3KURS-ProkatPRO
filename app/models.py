@@ -1,5 +1,5 @@
 import os, datetime as dt
-from sqlalchemy import create_engine, ForeignKey, CheckConstraint
+from sqlalchemy import create_engine, ForeignKey, CheckConstraint, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
 
 URL = os.getenv("DATABASE_URL", "sqlite:///./rental.db")
@@ -75,3 +75,15 @@ class WriteOff(Base):
     reason: Mapped[str]
     day: Mapped[dt.date] = mapped_column(default=dt.date.today)
     equipment = relationship(Equipment)
+
+
+class Review(Base):
+    __tablename__ = "reviews"
+    __table_args__ = (CheckConstraint("rating BETWEEN 1 AND 5"), UniqueConstraint("user_id", "equipment_id"))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    equipment_id: Mapped[int] = mapped_column(ForeignKey("equipment.id"))
+    rating: Mapped[int]
+    text: Mapped[str] = mapped_column(default="")
+    day: Mapped[dt.date] = mapped_column(default=dt.date.today)
+    user = relationship(User)

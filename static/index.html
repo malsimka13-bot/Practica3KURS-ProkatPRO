@@ -71,11 +71,40 @@ dialog form{display:grid;gap:12px}
 .chart{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
 .leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;margin-top:8px}.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
 .cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+
+body{display:flex;flex-direction:column}
+header,main,.foot{position:relative;z-index:1}
+main{flex:1 0 auto;width:100%;margin:0 auto}
+.stencils{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.stencils img{position:absolute;height:auto;opacity:.11;transform:rotate(var(--r,0deg));animation:drift 26s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate(0,0) rotate(var(--r,0deg))}to{transform:translate(24px,-32px) rotate(calc(var(--r,0deg) + 24deg))}}
+.rate{display:flex;align-items:center;gap:8px;background:none;border:0;padding:4px 0 0;color:var(--mute);font:500 .82rem var(--b);cursor:pointer;text-align:left}
+.rate:hover{color:var(--bone)}
+.xs{display:inline-flex;gap:3px}
+.x{display:inline-block;width:15px;height:20px;padding:0;border:0;background:#4B2A5E;-webkit-mask:url(/static/img/stencil-cross.png) center/contain no-repeat;mask:url(/static/img/stencil-cross.png) center/contain no-repeat}
+.x.on{background:#E56BDC}
+.x.pick{width:28px;height:36px;cursor:pointer}
+.x.pick:focus-visible{outline:3px solid var(--teal);outline-offset:2px;border-radius:4px}
+.lab{display:flex;flex-direction:column;gap:6px;font-size:.85rem;color:var(--mute)}
+.rv{border-top:1px solid var(--line);padding:10px 0;font-size:.92rem}
+.rv small{color:var(--mute)}
+.foot{margin-top:48px;border-top:1px solid var(--line);background:#14091c}
+.foot-in{max-width:1200px;margin:auto;padding:28px clamp(16px,4vw,48px);display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:22px}
+.foot p{color:var(--mute);margin:4px 0;font-size:.92rem}
+.foot strong{font:700 1.1rem var(--h)}
+.fh{display:block;font:600 .8rem var(--b);color:var(--teal);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+@media(prefers-reduced-motion:reduce){.stencils img{animation:none}}
 </style>
 </head>
 <body>
+<div class="stencils" id="stencils" aria-hidden="true"></div>
 <header class="top"><a class="logo" href="#/"><img src="/static/prokatpro-logo-transparent.svg" alt="ПрокатПро" height="40"></a><nav id="nav" aria-label="Главное меню"></nav></header>
 <main id="app"></main>
+<footer class="foot"><div class="foot-in">
+ <div><strong>ПрокатПро</strong><p>Учебный проект</p><p>Задание по практике №01</p></div>
+ <div><span class="fh">Автор</span><p>Пачицкий Максим Иванович</p><p>Группа 9ИС-370</p></div>
+ <div><span class="fh">Ссылки</span><p><a href="https://github.com/malsimka13-bot/Practica3KURS-ProkatPRO" target="_blank" rel="noopener">Исходный код на GitHub</a></p><p><a href="http://u993784c.beget.tech/vizitka/" target="_blank" rel="noopener">Сайт-визитка</a></p></div>
+</div></footer>
 <dialog id="dlg"></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 <script>
@@ -133,8 +162,9 @@ async function catalog(){
       <h3>${esc(x.name)}</h3><p>${esc(x.description)}</p>
       <div class="row"><span class="price">${rub(x.price_per_day)}<small>/сут</small></span>
       <span class="free ${x.free?'':'no'}">${x.free?(dated?'свободно ':'в наличии ')+x.free+' шт.':(dated?'на эти даты занято':'нет в наличии')}</span></div>
-      <button class="btn" data-id="${x.id}" ${x.free?'':'disabled'}>Забронировать</button></div></article>`).join('')
+      <button class="btn" data-id="${x.id}" ${x.free?'':'disabled'}>Забронировать</button>${rateLine(x)}</div></article>`).join('')
       :'<p class="empty">Ничего не найдено. Измените поиск или категорию.</p>';
+    $('#grid').querySelectorAll('[data-rv]').forEach(b=>b.onclick=safe(()=>reviewDlg(list.find(x=>x.id==b.dataset.rv),load)));
     $('#grid').querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>bookDlg(list.find(x=>x.id==b.dataset.id),$('#s').value,$('#e').value,load));
   });
   let t;['q','cat','s','e'].forEach(i=>$('#'+i).oninput=()=>{clearTimeout(t);t=setTimeout(load,250)});
@@ -309,6 +339,32 @@ async function route(){
   if(roles&&!(me&&roles.includes(me.role))){location.hash=me?'#/':'#/login';return}
   try{await fn()}catch(e){toast(e.message,1)}
 }
+
+/* ---------- отзывы: оценка крестами ---------- */
+const crosses=(n,pick)=>`<span class="xs" aria-hidden="true">${[1,2,3,4,5].map(i=>`<span class="x ${i<=Math.round(n)?'on':''}"></span>`).join('')}</span>`;
+const plr=n=>n%10===1&&n%100!==11?'отзыв':(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?'отзыва':'отзывов';
+const rateLine=x=>`<button class="rate" data-rv="${x.id}" aria-label="Оценка ${x.rating} из 5, отзывов: ${x.reviews}. Открыть отзывы">${crosses(x.rating)}<span>${x.reviews?String(x.rating).replace('.',',')+' · '+x.reviews+' '+plr(x.reviews):'нет оценок'}</span></button>`;
+async function reviewDlg(x,reload){
+  const list=await api(`/equipment/${x.id}/reviews`); let val=0;
+  dlg.innerHTML=`<form id="rf"><h2>${esc(x.name)}</h2>
+  <div>${list.length?list.map(r=>`<div class="rv"><b>${esc(r.user)}</b> ${crosses(r.rating)} <small>${dd(r.day)}</small>${r.text?`<br>${esc(r.text)}`:''}</div>`).join(''):'<p class="lead" style="margin:0">Отзывов пока нет.</p>'}</div>
+  ${me?`<div class="lab">Ваша оценка<span class="xs" id="pk" role="group" aria-label="Оценка крестами">${[1,2,3,4,5].map(i=>`<button type="button" class="x pick" data-v="${i}" aria-label="${i} из 5" aria-pressed="false"></button>`).join('')}</span></div>
+  <label>Отзыв<textarea id="rt" rows="3" maxlength="300" placeholder="Что понравилось или не понравилось"></textarea></label>
+  <div class="row"><button type="button" class="btn ghost" id="cl">Закрыть</button><button class="btn">Отправить</button></div>`
+  :`<p class="lead" style="margin:0">Войдите, чтобы оставить отзыв.</p><div class="row"><button type="button" class="btn ghost" id="cl">Закрыть</button></div>`}</form>`;
+  $('#cl').onclick=()=>dlg.close();
+  if(me){
+    $('#pk').onclick=e=>{const b=e.target.closest('[data-v]'); if(!b)return; val=+b.dataset.v; document.querySelectorAll('.pick').forEach(p=>{const on=+p.dataset.v<=val;p.classList.toggle('on',on);p.setAttribute('aria-pressed',on)})};
+    $('#rf').onsubmit=safe(async ev=>{ev.preventDefault(); if(!val){toast('Выберите оценку крестами',1);return}
+      await api(`/equipment/${x.id}/reviews`,'POST',{rating:val,text:$('#rt').value}); dlg.close(); toast('Спасибо за отзыв!'); reload()});
+  }
+  dlg.showModal();
+}
+/* ---------- трафареты на фоне ---------- */
+(function(){const L=$('#stencils'); if(!L)return;
+  ['skull','cross','claw','wave'].forEach(n=>{for(let i=0;i<3;i++){const im=document.createElement('img'); im.src='/static/img/stencil-'+n+'.png'; im.alt=''; im.loading='lazy';
+    im.style.cssText=`width:${(46+Math.random()*54).toFixed(0)}px;left:${(Math.random()*92).toFixed(1)}%;top:${(Math.random()*88).toFixed(1)}%;--r:${(Math.random()*360).toFixed(0)}deg;animation-delay:${(-Math.random()*20).toFixed(1)}s;animation-duration:${(18+Math.random()*16).toFixed(1)}s`;
+    L.appendChild(im)}})})();
 addEventListener('hashchange',route);route();
 </script>
 </body>

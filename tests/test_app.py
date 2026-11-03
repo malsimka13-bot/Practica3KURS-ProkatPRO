@@ -191,3 +191,34 @@ def test_stats(c, admin_h, client_h):
     book(c, client_h, D(1), D(2))
     s = c.get("/api/stats", headers=admin_h).json()
     assert s["by_status"] == {"booked": 1} and s["top"][0][0] == "Велосипед Повелителя Скал"
+
+
+# ---------- отзывы и оценки (кресты) ----------
+def test_review_requires_login(c):
+    assert c.post("/api/equipment/1/reviews", json={"rating": 5, "text": "ок"}).status_code == 401
+
+
+def test_review_rating_bounds_and_unknown_item(c, client_h):
+    for bad in (0, 6, -1):
+        assert c.post("/api/equipment/1/reviews", json={"rating": bad}, headers=client_h).status_code == 422
+    assert c.post("/api/equipment/1/reviews", json={"rating": 1}, headers=client_h).status_code == 200
+    assert c.post("/api/equipment/1/reviews", json={"rating": 5}, headers=client_h).status_code == 200
+    assert c.post("/api/equipment/999/reviews", json={"rating": 5}, headers=client_h).status_code == 404
+
+
+def test_review_average_and_one_review_per_user(c, client_h, manager_h):
+    c.post("/api/equipment/1/reviews", json={"rating": 5, "text": "отлично"}, headers=client_h)
+    r = c.post("/api/equipment/1/reviews", json={"rating": 2}, headers=manager_h).json()
+    assert r == {"rating": 3.5, "reviews": 2}
+    r = c.post("/api/equipment/1/reviews", json={"rating": 1, "text": "передумал"}, headers=client_h).json()
+    assert r == {"rating": 1.5, "reviews": 2}  # повторный отзыв обновляет прежний
+    item = next(e for e in c.get("/api/equipment").json() if e["id"] == 1)
+    assert item["rating"] == 1.5 and item["reviews"] == 2
+    assert next(e for e in c.get("/api/equipment").json() if e["id"] == 2)["reviews"] == 0
+
+
+def test_reviews_list(c, client_h):
+    c.post("/api/equipment/1/reviews", json={"rating": 4, "text": "хороший прокат"}, headers=client_h)
+    lst = c.get("/api/equipment/1/reviews").json()
+    assert lst[0]["user"] == "Клиент" and lst[0]["rating"] == 4 and lst[0]["text"] == "хороший прокат"
+    assert c.get("/api/equipment/999/reviews").status_code == 404

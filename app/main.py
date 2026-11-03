@@ -4,7 +4,8 @@ from fastapi import FastAPI, Depends, HTTPException, Header
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
-from .models import Base, engine, Session, User, Category, Equipment, Booking, WriteOff
+from sqlalchemy import func
+from .models import Base, engine, Session, User, Category, Equipment, Booking, WriteOff, Review
 from . import services as svc
 
 SECRET = os.getenv("SECRET_KEY", "dev-secret-change-me-in-production-0123456789")
@@ -121,6 +122,11 @@ class WriteIn(BaseModel):
     reason: str = Field(min_length=3, max_length=200)
 
 
+class ReviewIn(BaseModel):
+    rating: int = Field(ge=1, le=5)
+    text: str = Field("", max_length=300)
+
+
 class NoteIn(BaseModel):
     note: str = Field("", max_length=300)
 
@@ -133,8 +139,13 @@ def user_out(u):
     return {"id": u.id, "name": u.name, "email": u.email, "role": u.role}
 
 
-def eq_out(e, free=None):
-    return {"id": e.id, "name": e.name, "description": e.description, "photo": e.photo,
+def ratings(s):
+    rows = s.query(Review.equipment_id, func.avg(Review.rating), func.count(Review.id)).group_by(Review.equipment_id).all()
+    return {r[0]: (float(r[1]), r[2]) for r in rows}
+
+
+def eq_out(e, free=None, rv=None):
+    return {"rating": round(rv[0], 1) if rv else 0, "reviews": rv[1] if rv else 0, "id": e.id, "name": e.name, "description": e.description, "photo": e.photo,
             "category_id": e.category_id, "category": e.category.name, "icon": e.category.icon,
             "price_per_day": e.price_per_day, "stock_total": e.stock_total, "in_repair": e.in_repair,
             "written_off": e.written_off, "usable": e.usable, "free": e.usable if free is None else max(free, 0)}
@@ -205,7 +216,30 @@ def equipment(q: str = "", category_id: int = 0, start: dt.date = None, end: dt.
     if q:  # регистронезависимый поиск в Python: SQLite не умеет lower() для кириллицы
         items = [e for e in items if q.strip().casefold() in e.name.casefold()]
     ok = start and end and end >= start
-    return [eq_out(e, svc.free_units(s, e, start, end) if ok else None) for e in items]
+    rm = ratings(s)
+    return [eq_out(e, svc.free_units(s, e, start, end) if ok else None, rm.get(e.id)) for e in items]
+
+
+@app.get("/api/equipment/{eid}/reviews")
+def reviews(eid: int, s=Depends(db)):
+    if not s.get(Equipment, eid):
+        raise HTTPException(404, "Оборудование не найдено")
+    rows = s.query(Review).filter_by(equipment_id=eid).order_by(Review.id.desc()).all()
+    return [{"user": r.user.name, "rating": r.rating, "text": r.text, "day": r.day.isoformat()} for r in rows]
+
+
+@app.post("/api/equipment/{eid}/reviews")
+def add_review(eid: int, d: ReviewIn, s=Depends(db), u=Depends(current)):
+    if not s.get(Equipment, eid):
+        raise HTTPException(404, "Оборудование не найдено")
+    r = s.query(Review).filter_by(user_id=u.id, equipment_id=eid).first()
+    if r:
+        r.rating, r.text, r.day = d.rating, d.text.strip(), dt.date.today()
+    else:
+        s.add(Review(user_id=u.id, equipment_id=eid, rating=d.rating, text=d.text.strip()))
+    s.commit()
+    avg, n = ratings(s).get(eid, (0, 0))
+    return {"rating": round(avg, 1), "reviews": n}
 
 
 @app.post("/api/equipment")
