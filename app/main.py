@@ -11,11 +11,6 @@ SECRET = os.getenv("SECRET_KEY", "dev-secret-change-me-in-production-0123456789"
 EMAIL = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
 
-PHOTOS = {"Горный велосипед": "velosiped", "Сноуборд с креплениями": "snowboard", "Электросамокат": "samokat",
-          "Палатка 4-местная": "palatka", "Спальный мешок −15 °C": "spalnik", "Рюкзак 80 л": "ryukzak",
-          "Перфоратор": "perforator", "Шлифмашина угловая": "shlifmashina", "Строительные леса": "lesa"}
-
-
 def seed():
     with Session() as s:
         if s.query(User).first():
@@ -25,21 +20,22 @@ def seed():
                    User(name="Менеджер", email="manager@rent.local", pw=h("manager123"), role="manager"),
                    User(name="Клиент", email="client@rent.local", pw=h("client123"))])
         cats = {n: Category(name=n, icon=i) for n, i in
-                [("Спорт", "🚴"), ("Туризм", "⛺"), ("Строительство", "🔨")]}
+                [("Колёса", "🚴"), ("Лагерь", "⛺"), ("Инструмент", "🔨")]}
         s.add_all(cats.values())
         s.flush()
-        for n, c, p, k, d in [
-            ("Горный велосипед", "Спорт", 900, 6, "Алюминиевая рама, 21 скорость, шлем в комплекте"),
-            ("Сноуборд с креплениями", "Спорт", 1100, 4, "Универсальный, рост 160–185 см"),
-            ("Электросамокат", "Спорт", 700, 5, "До 25 км/ч, запас хода 30 км"),
-            ("Палатка 4-местная", "Туризм", 600, 5, "Трёхсезонная, тамбур, лёгкая сборка"),
-            ("Спальный мешок −15 °C", "Туризм", 250, 10, "Кокон, компрессионный чехол"),
-            ("Рюкзак 80 л", "Туризм", 300, 8, "Анатомическая спинка, дождевик"),
-            ("Перфоратор", "Строительство", 800, 4, "SDS+, 3 режима, набор буров"),
-            ("Шлифмашина угловая", "Строительство", 500, 5, "125 мм, регулировка оборотов"),
-            ("Строительные леса", "Строительство", 1500, 3, "Секция 2×2 м, до 200 кг")]:
+        for n, c, p, k, d, ph in [
+            ("Велосипед Повелителя Скал", "Колёса", 900, 6, "Горный, алюминиевая рама, 21 скорость, шлем в комплекте", "velosiped"),
+            ("BMX «Укротитель Рампы»", "Колёса", 800, 5, "Усиленная рама, пеги, для скейт-парка", "bmx"),
+            ("Электросамокат «Городской Метеор»", "Колёса", 700, 5, "До 25 км/ч, запас хода 30 км", "samokat"),
+            ("Ролики «Ночной Гонщик»", "Колёса", 450, 6, "Раздвижные, размеры 36–45, защита в комплекте", "rolik"),
+            ("Палатка «Дом Странника»", "Лагерь", 600, 5, "4-местная, трёхсезонная, тамбур, лёгкая сборка", "palatka"),
+            ("Горелка «Малый Вулкан»", "Лагерь", 250, 10, "Газовая, компактная, ветрозащита, пьезоподжиг", "burner"),
+            ("Рюкзак «Хранитель Троп»", "Лагерь", 300, 8, "80 л, анатомическая спинка, дождевик", "ryukzak"),
+            ("Перфоратор «Громобой»", "Инструмент", 800, 4, "SDS+, 3 режима, набор буров", "perforator"),
+            ("Шлифмашина «Искрогрыз»", "Инструмент", 500, 5, "Угловая, 125 мм, регулировка оборотов", "shlifmashina"),
+            ("Пистолет автомойки «Водопад»", "Инструмент", 450, 6, "Для мойки высокого давления, пенная насадка", "mojka")]:
             s.add(Equipment(name=n, category_id=cats[c].id, price_per_day=p, stock_total=k, description=d,
-                           photo=f"/static/img/{PHOTOS[n]}.jpg"))
+                            photo=f"/static/img/{ph}.jpg"))
         s.commit()
 
 
@@ -203,12 +199,10 @@ def edit_cat(cid: int, d: CatIn, s=Depends(db), _=Depends(need("admin"))):
 @app.get("/api/equipment")
 def equipment(q: str = "", category_id: int = 0, start: dt.date = None, end: dt.date = None, s=Depends(db)):
     qs = s.query(Equipment)
-    if q:
-            qs = s.query(Equipment)
     if category_id:
         qs = qs.filter_by(category_id=category_id)
     items = qs.order_by(Equipment.id).all()
-    if q:
+    if q:  # регистронезависимый поиск в Python: SQLite не умеет lower() для кириллицы
         items = [e for e in items if q.strip().casefold() in e.name.casefold()]
     ok = start and end and end >= start
     return [eq_out(e, svc.free_units(s, e, start, end) if ok else None) for e in items]

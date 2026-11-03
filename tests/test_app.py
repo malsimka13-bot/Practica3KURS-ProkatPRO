@@ -3,7 +3,7 @@ from app.models import Session, Booking
 
 TODAY = dt.date.today()
 D = lambda n: (TODAY + dt.timedelta(days=n)).isoformat()
-# Демо-данные: оборудование №1 — «Горный велосипед», 900 ₽/сут, 6 шт.; пользователи: 1 admin, 2 manager, 3 client
+# Демо-данные: оборудование №1 — «Велосипед Повелителя Скал», 900 ₽/сут, 6 шт.; пользователи: 1 admin, 2 manager, 3 client
 
 
 def book(c, h, start, end, qty=1, eid=1):
@@ -108,7 +108,7 @@ def test_catalog_shows_free_units_for_dates(c, client_h):
 
 
 def test_catalog_search_and_category(c):
-    assert [e["name"] for e in c.get("/api/equipment?q=палатка").json()] == ["Палатка 4-местная"]
+    assert [e["name"] for e in c.get("/api/equipment?q=ПАЛАТКА").json()] == ["Палатка «Дом Странника»"]
     assert len(c.get("/api/equipment?category_id=3").json()) == 3
     assert c.get("/api/equipment?q=нет-такого").json() == []
 
@@ -163,7 +163,7 @@ def test_writeoff_reduces_stock_and_availability(c, admin_h, client_h):
 
 
 def test_repair_plus_writeoff_cannot_exceed_stock(c, admin_h):
-    body = {"name": "Горный велосипед", "category_id": 1, "price_per_day": 900, "stock_total": 6, "in_repair": 4, "written_off": 3}
+    body = {"name": "Велосипед Повелителя Скал", "category_id": 1, "price_per_day": 900, "stock_total": 6, "in_repair": 4, "written_off": 3}
     assert c.put("/api/equipment/1", json=body, headers=admin_h).status_code == 400
 
 
@@ -176,9 +176,9 @@ def test_equipment_validation(c, admin_h):
 
 
 def test_categories_admin(c, admin_h):
-    assert c.post("/api/categories", json={"name": "Спорт"}, headers=admin_h).status_code == 409
+    assert c.post("/api/categories", json={"name": "Колёса"}, headers=admin_h).status_code == 409
     assert c.post("/api/categories", json={"name": "Музыка", "icon": "🎸"}, headers=admin_h).status_code == 200
-    assert c.put("/api/categories/1", json={"name": "Туризм"}, headers=admin_h).status_code == 409
+    assert c.put("/api/categories/1", json={"name": "Лагерь"}, headers=admin_h).status_code == 409
 
 
 def test_role_management(c, admin_h, client_h):
@@ -190,4 +190,4 @@ def test_role_management(c, admin_h, client_h):
 def test_stats(c, admin_h, client_h):
     book(c, client_h, D(1), D(2))
     s = c.get("/api/stats", headers=admin_h).json()
-    assert s["by_status"] == {"booked": 1} and s["top"][0][0] == "Горный велосипед"
+    assert s["by_status"] == {"booked": 1} and s["top"][0][0] == "Велосипед Повелителя Скал"

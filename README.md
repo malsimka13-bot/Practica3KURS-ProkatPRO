@@ -47,7 +47,7 @@ uvicorn app.main:app
 
 - Порт 8000 занят: добавьте к последней команде `--port 8001` и откройте соответствующий адрес.
 - Нужны чистые данные: остановите сервер (Ctrl+C), удалите файл `rental.db` и запустите снова. Файл удаляют только при остановленном сервере.
-- Фото не отображаются: проверьте, что картинки лежат в `static/img/` (velosiped.jpg, snowboard.jpg, samokat.jpg, palatka.jpg, spalnik.jpg, ryukzak.jpg, perforator.jpg, shlifmashina.jpg, lesa.jpg).
+- Фото не отображаются: проверьте, что картинки лежат в `static/img/` (velosiped.jpg, bmx.jpg, samokat.jpg, rolik.jpg, palatka.jpg, burner.jpg, ryukzak.jpg, perforator.jpg, shlifmashina.jpg, mojka.jpg).
 
 ## Демо-аккаунты
 
